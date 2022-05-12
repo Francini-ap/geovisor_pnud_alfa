@@ -58,9 +58,9 @@ dat <- data.frame(cond = rep(c("A", "B"), each=10),
                   xvar = 1:20 + rnorm(20,sd=3),
                   yvar = 1:20 + rnorm(20,sd=3))
 ```
+
+
 ```{r datos}
-
-
 
 # Lectura de una capa vectorial (GeoJSON) Proyecto locales Unidos
  proyectos_unidos_v2 <-
@@ -119,12 +119,15 @@ lista_proyectos_xac <- c("Todos", lista_proyectos_xac)
 
 ```
 
-Área geográfica de los proyectos PNUD
+Alcance geográfico:Proyectos PNUD
 =======================================================================
 
-### Buscador
+
+Filtros {.sidebar}
+-------------------------------------
 
 ```{r filtros}
+h5("Filtros de datos")
 selectInput(
   input = "proyectos",
   label = "Proyectos PNUD",
@@ -157,35 +160,53 @@ filtrarRegistros <- reactive({
   
 })
 
-
-
 ```
-<div>
-<p style = 'text-align:center;'>
-</p>
-</p>
-<img src="https://francini-ap.github.io/logos_ods/Logo%20PNUD-Color.png" alt="JuveYell" width="150px">
-</p>
-</div>
 
- 
-
- 
-Colum {data-height=300}
+Colum {data-height=1000}
 -----------------------------------------------------------------------
 
-### Área geográfica por proyecto
-
-
+### Alcances Geográficos: Presenta el área geográfica que abarcan los proyectos del PNUD y además mide las acciones de los proyectos del PNUD en el territorio nacional
 
 ```{r area-geografica}
+
+#Paletas de colores 
+bins <- c(12, 13,14,15,16)
+pal <- colorBin(  "Greens", domain = proyectos_x_ac$num_proyec, bins = bins)
+
+bins2 <- c(13, 14,15,16)
+pal2 <-colorBin("YlOrBr", domain = proyectos_x_mideplan$num_pro_m, bins = bins2)
+
+bins3 <- c(12,13,14,15,16)
+pal3 <- colorBin("Purples", domain = proyectos_x_ac$num_proyec, bins = bins3)
+
+bins4 <- c(4,5,6,7)
+pal4 <- colorBin("PuBu", domain = proyectos_x_ac$num_proyec, bins = bins4)
+
+bins5 <- c(7,8,9,10,11)
+pal5 <- colorBin("PuRd", domain = proyectos_x_ac$num_proyec, bins = bins5)
+
+bins6 <- c(0,1,2,3)
+pal6 <- colorBin("Reds", domain = proyectos_x_ac$num_proyec, bins = bins6)
+
+bins7 <- c(1,6,7,8,10,11,20,21)
+pal7 <- colorBin("Greys", domain = proyectos_x_ac$num_proyec, bins = bins7)
+
+bins8 <- c(616186,619381,620686,721813,861561,861564)
+pal8 <- colorBin("Reds", domain = proyectos_x_ac$num_proyec, bins = bins8)
+
+bins9 <- c(747693,1171799,1595906,2020012,2444119,2868225,2868227)
+pal9 <- colorBin("Blues", domain = proyectos_x_ac$num_proyec, bins = bins9)
+
+bins10 <- c(0,1,2)
+pal10 <- colorBin("YlGn", domain = proyectos_x_ac$num_proyec, bins = bins10)
 
 renderLeaflet({
   registros <-
     filtrarRegistros()
 
 # Mapa leaflet básico con capas de las Área geográfica por proyecto del PNUD
-leaflet() %>%
+map <-
+  leaflet() %>%
   setView(lng = -84.19452,
             lat = 9.572735,
             zoom = 7) %>%
@@ -235,97 +256,6 @@ leaflet() %>%
         "<a href='https://pnud-conocimiento.cr/proyecto/'>Más información</a>"
       )
     ) %>%
-  
-  addMeasure(
-    position = "topleft",
-    primaryLengthUnit = "meters",
-    primaryAreaUnit = "sqmeters",
-    activeColor = "#3D535D",
-    completedColor = "#7D4479")%>%
-  addProviderTiles(providers$Esri.WorldStreetMap) %>%
-	  addMiniMap(
-		tiles = providers$Esri.WorldStreetMap,
-		toggleDisplay = TRUE)%>%
- addLayersControl(baseGroups = c("OSM", "Esri World Imagery"), 
-                   overlayGroups = c("Proyectos PNUD"),
-                   options = layersControlOptions(collapsed = FALSE))%>%
- addScaleBar("bottomright") %>%
- addResetMapButton() %>%
- addSearchOSM()%>% 
- addMouseCoordinates()%>% 
- addEasyprint(options = easyprintOptions(
-    title = 'Print map',
-    position = 'bottomleft',
-    exportOnly = TRUE)) 
- 
-})
-
-```
-
-Column {data-height=100}
------------------------------------------------------------------------
-
-
-
-### Lista de proyectos vigentes del PNUD Costa Rica
-
-```{r tabla-lista-proyect}
-renderDT({
-  registros <- filtrarRegistros()
-  
-  registros %>%
-    st_drop_geometry() %>%
-   datatable(rownames= FALSE, filter= "top", class= "hover cell-border stripe", colnames = c( "Proyecto", "Marcador género","Donante","Presupuesto ($)","Acción  ODS"), options = list (language = list (url = "//cdn.datatables.net/plug-ins/1.10.11/i18n/Spanish.json"),pageLength = 5, dom = "Bfrtip"))
-})
-```
-
-Alcances Geográficos
-=======================================================================
-```{r visor-ods}
-#Paletas de colores 
-bins <- c(12, 13,14,15,16)
-pal <- colorBin(  "Greens", domain = proyectos_x_ac$num_proyec, bins = bins)
-
-bins2 <- c(13, 14,15,16)
-pal2 <-colorBin("YlOrBr", domain = proyectos_x_mideplan$num_pro_m, bins = bins2)
-
-bins3 <- c(12,13,14,15,16)
-pal3 <- colorBin("Purples", domain = proyectos_x_ac$num_proyec, bins = bins3)
-
-bins4 <- c(4,5,6,7)
-pal4 <- colorBin("PuBu", domain = proyectos_x_ac$num_proyec, bins = bins4)
-
-bins5 <- c(7,8,9,10,11)
-pal5 <- colorBin("PuRd", domain = proyectos_x_ac$num_proyec, bins = bins5)
-
-bins6 <- c(0,1,2,3)
-pal6 <- colorBin("Reds", domain = proyectos_x_ac$num_proyec, bins = bins6)
-
-bins7 <- c(1,6,7,8,10,11,20,21)
-pal7 <- colorBin("Greys", domain = proyectos_x_ac$num_proyec, bins = bins7)
-
-bins8 <- c(616186,619381,620686,721813,861561,861564)
-pal8 <- colorBin("Reds", domain = proyectos_x_ac$num_proyec, bins = bins8)
-
-bins9 <- c(747693,1171799,1595906,2020012,2444119,2868225,2868227)
-pal9 <- colorBin("Blues", domain = proyectos_x_ac$num_proyec, bins = bins9)
-
-bins10 <- c(0,1,2)
-pal10 <- colorBin("YlGn", domain = proyectos_x_ac$num_proyec, bins = bins10)
-
-
-# Mapa leaflet con capas de los Indicadores geográficos
-map <- 
-    
- leaflet() %>%
-    setView(lng = -83.79452, # el centro está en -84.19452
-            lat = 9.572735,
-            zoom = 7) %>%
-  addTiles(group = "OSM (default)") %>%
-  addProviderTiles(providers$CartoDB.Positron, group = "Carto BD")%>%
-  
-  
-  addTiles() %>%# Overlay groups
   addPolygons (
     data = proyectos_x_ac,
     group = "Cantidad proyectos por AC",
@@ -366,8 +296,7 @@ map <-
     position = "bottomleft",
     group = "Cantidad proyectos por AC"
   )%>%
-
-  addPolygons (
+addPolygons (
     data = proyectos_x_mideplan,
     group = "Cantidad proyecto por Región MIDEPLAN",
     color = 'black',
@@ -570,7 +499,7 @@ map <-
   
  addLayersControl(
    baseGroups = c("OSM", "Esri World Imagery"), 
-   overlayGroups = c("Cantidad proyectos por AC", "Cantidad proyecto por Región MIDEPLAN", "Cantidad proyectos por cantón", "Marcador GEN0:Cantones","Marcador GEN1:Cantones","Marcador GEN2:Cantones","Marcador GEN3:Cantones"),
+   overlayGroups = c("Proyectos PNUD","Cantidad proyectos por AC", "Cantidad proyecto por Región MIDEPLAN", "Cantidad proyectos por cantón", "Marcador GEN0:Cantones","Marcador GEN1:Cantones","Marcador GEN2:Cantones","Marcador GEN3:Cantones"),
    options = layersControlOptions(collapsed = TRUE,  autoZIndex = FALSE))%>% 
 
  addScaleBar(position = "bottomleft",
@@ -584,14 +513,62 @@ map %>% hideGroup ("Marcador GEN3:Cantones")%>%
         hideGroup ("Marcador GEN1:Cantones")%>%
         hideGroup ("Marcador GEN0:Cantones")%>%
         hideGroup ("Cantidad proyectos por cantón")%>%
-        hideGroup ("Cantidad proyecto por Región MIDEPLAN")
+        hideGroup ("Cantidad proyecto por Región MIDEPLAN")%>%
+        hideGroup ("Cantidad proyectos por AC")
 
-
+})
 ```
+
+
+
+Colum {data-height=100}
+-----------------------------------------------------------------------
+
+
+### Lista de proyectos vigentes del PNUD Costa Rica
+
+```{r tabla-lista-proyect}
+renderDT({
+  registros  <- filtrarRegistros()
+  
+  registros %>%
+    st_drop_geometry() %>%
+    select(nom_abrev, mar_genero, nom_donant,presupu_2, ods) %>%
+    datatable(
+      rownames = FALSE,
+      colnames = c(
+     "Proyecto", 
+	   "Marcador género",
+	   "Donante",
+	   "Presupuesto
+     ($)",
+	   "Acción  ODS"
+      ),
+      extensions = c("Buttons"),
+      options = list(
+        pageLength = 3,
+        searchHighlight = TRUE,
+        dom = 'Bfrtlip',
+        language = list(url = "//cdn.datatables.net/plug-ins/1.10.11/i18n/Spanish.json"),
+        buttons = list(
+          list(extend = 'copy', text = 'Copiar'),
+          list(extend = 'csv', text = 'CSV'),
+          list(extend = 'csv', text = 'Excel'),
+          list(extend = 'pdf', text = 'PDF')
+        )
+      )
+    )
+}) 
+```
+
+
 
 
 Indicadores ODS
 =======================================================================
+
+
+### Indicadores ODS: Miden las acciones de los proyectos del PNUD por ODS en el territorio nacional
 ```{r visor-ods1}
 
 bins <- c(0,3,4,5,6)
@@ -1168,6 +1145,5 @@ Column {data-width=400}
 </style>
 
 <button class="bt2"><a href='https://francini-ap.github.io/capas_visor_tfg_2022/GeoVisorPNUD(2).png'>Guía de uso de los Geovisores y sus herramientas disponibles </a></button>
-
 
 
