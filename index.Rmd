@@ -1,0 +1,1173 @@
+---
+title: "Geovisor: PNUD"
+output: 
+  flexdashboard::flex_dashboard:
+    social: menu
+    source_code: embed 
+runtime: shiny
+---
+
+```{r global, include=FALSE}
+# Cargar librerias
+
+#Paquete para manipulación de datos
+library(plyr)
+
+#Paquete para tablero de control al interactivos
+library(flexdashboard)
+
+# Paquete para manipulación de datos
+library(dplyr)
+
+# Paquete para manejo de datos vectoriales
+library(sf)
+
+# Paquete para mapas interactivos
+library(leaflet)
+
+#Paquete para manejo de tablas
+library(DT)
+
+library(leaflet.extras)
+#Paquete coordenadas mapa
+library(leafem)
+# Paquete para manipulación de datos
+
+# Paquete para simplificación y edición de geometrías
+library(rmapshaper)
+
+# Paquetes con datos geoespaciales para ejemplos
+library(spData)
+
+# Paquetes para gestión de colores
+library(RColorBrewer)
+
+library(shiny)
+library(sp)
+library(leaflet)
+library(leaflet.extras2)
+library(htmlwidgets)
+library( mapview )
+library(webshot)
+library(htmltools)
+library(htmlwidgets)
+
+# Make some noisily increasing data
+set.seed(955)
+dat <- data.frame(cond = rep(c("A", "B"), each=10),
+                  xvar = 1:20 + rnorm(20,sd=3),
+                  yvar = 1:20 + rnorm(20,sd=3))
+```
+```{r datos}
+
+
+
+# Lectura de una capa vectorial (GeoJSON) Proyecto locales Unidos
+ proyectos_unidos_v2 <-
+  st_read(
+    "https://francini-ap.github.io/capas_visor_tfg_2022/proyectos_pnud6.geojson",
+    quiet = TRUE
+  )
+
+# Lectura de una capa vectorial (GeoJSON) Proyectos por AC
+proyectos_x_ac<-
+  st_read(
+    "https://francini-ap.github.io/capas_visor_tfg_2022/ac_proyectos.geojson",
+    quiet = TRUE
+  )
+
+# Lectura de una capa vectorial (GeoJSON) Proyectos por Regiones MIDEPLAN
+proyectos_x_mideplan<-
+  st_read(
+    "https://francini-ap.github.io/capas_visor_tfg_2022/mideplan_proyectos.geojson",
+    quiet = TRUE
+  )
+
+# Lectura de una capa vectorial (GeoJSON) Proyectos por canton
+proyectos_x_canton<-
+  st_read(
+    "https://francini-ap.github.io/capas_visor_tfg_2022/cantones_proyectos.geojson",
+    quiet = TRUE
+  )
+
+# Lectura de una capa vectorial (GeoJSON) 	Marcador de género, por proyecto y cantón 
+mar_genero_canton<-
+  st_read(
+    "https://francini-ap.github.io/capas_visor_tfg_2022/margenero_canton.geojson",
+    quiet = TRUE
+  )
+
+# Lectura de una capa vectorial (GeoJSON)ODS 1
+
+ods_unidos<-
+  st_read(
+    "https://francini-ap.github.io/capas_visor_tfg_2022/ods_unidos_2.geojson",
+    quiet = TRUE
+  )
+
+
+#Lista ordenada de proyectos + "Todas"
+lista_proyectos_pnud <- unique(proyectos_unidos_v2$nom_abrev)
+lista_proyectos_pnud <- sort(lista_proyectos_pnud)
+lista_proyectos_pnud <- c("Todos", lista_proyectos_pnud)
+
+# Lista ordenada de cantidad proyectos por AC + "Todas"
+lista_proyectos_xac<- unique(proyectos_x_ac$nombre_ac)
+lista_proyectos_xac <- sort(lista_proyectos_xac)
+lista_proyectos_xac <- c("Todos", lista_proyectos_xac)
+
+
+```
+
+Área geográfica de los proyectos PNUD
+=======================================================================
+
+### Buscador
+
+```{r filtros}
+selectInput(
+  input = "proyectos",
+  label = "Proyectos PNUD",
+  choices = lista_proyectos_pnud,
+  selected = "Todos"
+)
+
+
+
+# Definición de la función server
+
+filtrarRegistros <- reactive({
+  # Remoción de geometrías y selección de columnas
+  proyectos_unidos_filtrado <-
+    proyectos_unidos_v2  %>%
+    dplyr::select(nom_abrev, mar_genero, nom_donant,presupu_2, ods)
+          
+  
+  # Filtrado de los proyectos PNUD 
+  if (input$proyectos != "Todos") {
+    proyectos_unidos_filtrado <-
+      proyectos_unidos_filtrado %>%
+      filter(nom_abrev == input$proyectos)
+    
+  }
+ 
+  
+  return(proyectos_unidos_filtrado)
+  
+  
+})
+
+
+
+```
+<div>
+<p style = 'text-align:center;'>
+</p>
+</p>
+<img src="https://francini-ap.github.io/logos_ods/Logo%20PNUD-Color.png" alt="JuveYell" width="150px">
+</p>
+</div>
+
+ 
+
+ 
+Colum {data-height=300}
+-----------------------------------------------------------------------
+
+### Área geográfica por proyecto
+
+
+
+```{r area-geografica}
+
+renderLeaflet({
+  registros <-
+    filtrarRegistros()
+
+# Mapa leaflet básico con capas de las Área geográfica por proyecto del PNUD
+leaflet() %>%
+  setView(lng = -84.19452,
+            lat = 9.572735,
+            zoom = 7) %>%
+  addTiles(group = "OSM (default)") %>%
+  addProviderTiles(providers$CartoDB.Positron, group = "Carto BD")%>%
+  addProviderTiles(providers$Esri.WorldImagery, group = "Esri World Imagery") %>%
+  addTiles() %>%
+# Overlay groups
+  addPolygons (
+    data = registros,
+    group = "Proyectos PNUD",
+    color = "#0468B1",
+    fillColor = "#0468B1",
+    stroke = TRUE,
+    weight = 3.0,
+    opacity = 0.80,
+    fillOpacity = 0.8,
+    label = paste0(
+        registros$nom_abrev,
+        ", ",
+        registros$nom_donant,
+        ", ",
+        registros$presupuest,
+        ", ",
+        registros$mar_genero,
+        ", ",
+        registros$ods
+       
+      ),
+            popup = paste0(
+        "<div style=text-align:center><h3>Información proyecto </div>",
+        "<strong>Nombre proyecto: </strong>",
+        registros$nom_abrev,
+        "<br>",
+        "<strong>Nombre donate: </strong>",
+        registros$nom_donant,
+        "<br>",
+        "<strong>Presupuesto dólares ($): </strong>",
+        registros$presupu_2,
+        "<br>",
+        "<strong>Acción género: </strong>",
+        registros$mar_genero,
+        "<br>",
+        "<strong>Acción en los ODS: </strong>",
+         registros$ods, 
+        "<br>",
+        "<a href='https://pnud-conocimiento.cr/proyecto/'>Más información</a>"
+      )
+    ) %>%
+  
+  addMeasure(
+    position = "topleft",
+    primaryLengthUnit = "meters",
+    primaryAreaUnit = "sqmeters",
+    activeColor = "#3D535D",
+    completedColor = "#7D4479")%>%
+  addProviderTiles(providers$Esri.WorldStreetMap) %>%
+	  addMiniMap(
+		tiles = providers$Esri.WorldStreetMap,
+		toggleDisplay = TRUE)%>%
+ addLayersControl(baseGroups = c("OSM", "Esri World Imagery"), 
+                   overlayGroups = c("Proyectos PNUD"),
+                   options = layersControlOptions(collapsed = FALSE))%>%
+ addScaleBar("bottomright") %>%
+ addResetMapButton() %>%
+ addSearchOSM()%>% 
+ addMouseCoordinates()%>% 
+ addEasyprint(options = easyprintOptions(
+    title = 'Print map',
+    position = 'bottomleft',
+    exportOnly = TRUE)) 
+ 
+})
+
+```
+
+Column {data-height=100}
+-----------------------------------------------------------------------
+
+
+
+### Lista de proyectos vigentes del PNUD Costa Rica
+
+```{r tabla-lista-proyect}
+renderDT({
+  registros <- filtrarRegistros()
+  
+  registros %>%
+    st_drop_geometry() %>%
+   datatable(rownames= FALSE, filter= "top", class= "hover cell-border stripe", colnames = c( "Proyecto", "Marcador género","Donante","Presupuesto ($)","Acción  ODS"), options = list (language = list (url = "//cdn.datatables.net/plug-ins/1.10.11/i18n/Spanish.json"),pageLength = 5, dom = "Bfrtip"))
+})
+```
+
+Alcances Geográficos
+=======================================================================
+```{r visor-ods}
+#Paletas de colores 
+bins <- c(12, 13,14,15,16)
+pal <- colorBin(  "Greens", domain = proyectos_x_ac$num_proyec, bins = bins)
+
+bins2 <- c(13, 14,15,16)
+pal2 <-colorBin("YlOrBr", domain = proyectos_x_mideplan$num_pro_m, bins = bins2)
+
+bins3 <- c(12,13,14,15,16)
+pal3 <- colorBin("Purples", domain = proyectos_x_ac$num_proyec, bins = bins3)
+
+bins4 <- c(4,5,6,7)
+pal4 <- colorBin("PuBu", domain = proyectos_x_ac$num_proyec, bins = bins4)
+
+bins5 <- c(7,8,9,10,11)
+pal5 <- colorBin("PuRd", domain = proyectos_x_ac$num_proyec, bins = bins5)
+
+bins6 <- c(0,1,2,3)
+pal6 <- colorBin("Reds", domain = proyectos_x_ac$num_proyec, bins = bins6)
+
+bins7 <- c(1,6,7,8,10,11,20,21)
+pal7 <- colorBin("Greys", domain = proyectos_x_ac$num_proyec, bins = bins7)
+
+bins8 <- c(616186,619381,620686,721813,861561,861564)
+pal8 <- colorBin("Reds", domain = proyectos_x_ac$num_proyec, bins = bins8)
+
+bins9 <- c(747693,1171799,1595906,2020012,2444119,2868225,2868227)
+pal9 <- colorBin("Blues", domain = proyectos_x_ac$num_proyec, bins = bins9)
+
+bins10 <- c(0,1,2)
+pal10 <- colorBin("YlGn", domain = proyectos_x_ac$num_proyec, bins = bins10)
+
+
+# Mapa leaflet con capas de los Indicadores geográficos
+map <- 
+    
+ leaflet() %>%
+    setView(lng = -83.79452, # el centro está en -84.19452
+            lat = 9.572735,
+            zoom = 7) %>%
+  addTiles(group = "OSM (default)") %>%
+  addProviderTiles(providers$CartoDB.Positron, group = "Carto BD")%>%
+  
+  
+  addTiles() %>%# Overlay groups
+  addPolygons (
+    data = proyectos_x_ac,
+    group = "Cantidad proyectos por AC",
+    color = 'black',
+    fillColor = ~pal(num_proyec),
+    stroke = TRUE,
+    weight = 1.0,
+    opacity = 1,
+    fillOpacity = 0.8,
+    label = paste0(
+        proyectos_x_ac$nombre_ac,
+        ", ",
+        proyectos_x_ac$siglas_ac,
+        ", ",
+        proyectos_x_ac$p_local,
+        ", ",
+        proyectos_x_ac$p_nacional
+      ),
+            popup = paste0(
+        "<div style=text-align:center><h3> Proyectos por AC </div>",  
+        "<strong>Nombre AC : </strong>",
+        proyectos_x_ac$nombre_ac,
+        "<br>",
+        "<strong>Siglas AC: </strong>",
+       proyectos_x_ac$siglas_ac,
+        "<br>",
+        "<strong>N°proyectos locales: </strong>",
+        proyectos_x_ac$p_local,
+       "<br>",
+        "<strong>N°proyectos nacionales: </strong>",
+        proyectos_x_ac$p_nacional)
+    ) %>%
+  addLegend(
+    pal = pal,
+    values = proyectos_x_ac$num_proyec,
+    opacity = 1,
+    title = "N° proyectos por AC",
+    position = "bottomleft",
+    group = "Cantidad proyectos por AC"
+  )%>%
+
+  addPolygons (
+    data = proyectos_x_mideplan,
+    group = "Cantidad proyecto por Región MIDEPLAN",
+    color = 'black',
+    fillColor = ~pal2(num_pro_m),
+    stroke = TRUE,
+    weight = 1.0,
+    opacity = 1,
+    fillOpacity = 0.8,
+    label = paste0(
+        proyectos_x_mideplan$region,
+        ", ",
+         proyectos_x_mideplan$p_locales,
+        ", ",
+        proyectos_x_mideplan$p_naciones
+      ),
+            popup = paste0(
+        "<div style=text-align:center><h3> Proyectos por Región MIDEPLAN </div>", 
+        "<strong>Nombre Región: </strong>",
+        proyectos_x_mideplan$region,
+        "<br>",
+        "<strong>N°proyectos locales: </strong>",
+        proyectos_x_mideplan$p_locales,
+       "<br>",
+        "<strong>N°proyectos nacionales: </strong>",
+        proyectos_x_mideplan$p_naciones
+      )
+    ) %>%
+  addLegend(
+    pal = pal2,
+    values = proyectos_x_mideplan$num_proyec,
+    opacity = 1,
+    title = "N°proyectos-regiones MIDEPLAN",
+    position = "bottomleft",
+    group = "Cantidad proyecto por Región MIDEPLAN"
+  )%>%
+  
+  addPolygons (
+    data = proyectos_x_canton,
+    group = "Cantidad proyectos por cantón",
+    color = 'black',
+    fillColor = ~pal3(num_proyec),
+    stroke = TRUE,
+    weight = 1.0,
+    opacity = 1,
+    fillOpacity = 0.8,
+    label = paste0(
+        proyectos_x_canton$canton,
+        ", ",
+         proyectos_x_canton$p_locales,
+        ", ",
+        proyectos_x_canton$p_nacional
+      ),
+            popup = paste0(
+        "<div style=text-align:center><h3> Proyectos por cantón </div>",
+        "<strong>Cantón: </strong>",
+        proyectos_x_canton$canton,
+        "<br>",
+        "<strong>N°proyectos locales: </strong>",
+        proyectos_x_canton$p_locales,
+       "<br>",
+        "<strong>N°proyectos nacionales: </strong>",
+        proyectos_x_canton$p_nacional
+      )
+    ) %>%
+  addLegend(
+    pal = pal3,
+    values = proyectos_x_canton$num_proyec,
+    opacity = 1,
+    title = "N° proyectos por cantón",
+    position = "bottomleft",
+    group = "Cantidad proyectos por cantón"
+  )%>%
+  
+  addPolygons (
+    data = mar_genero_canton,
+    group = "Marcador GEN0:Cantones",
+    color = 'black',
+    fillColor = ~pal10(gen0),
+    stroke = TRUE,
+    weight = 1.0,
+    opacity = 1,
+    fillOpacity = 0.8,
+    label = paste0(
+        mar_genero_canton$canton,
+        ", ",
+        mar_genero_canton$gen0
+      ),
+            popup = paste0(
+        "<div style=text-align:center><h3> Proyectos con GEN0 </div>",
+        "<strong>Cantón: </strong>",
+        mar_genero_canton$canton,
+        "<br>",
+        "<strong>N° proyectos Gen 0 : </strong>",
+        mar_genero_canton$gen0
+      )
+    ) %>%
+  addLegend(
+    pal = pal10,
+    values = mar_genero_canton$gen0,
+    opacity = 1,
+    title = "N° proyectos Gen 0",
+    position = "bottomleft",
+    group = "Marcador GEN0:Cantones"
+  )%>%
+  addPolygons (
+    data = mar_genero_canton,
+    group = "Marcador GEN1:Cantones",
+    color = 'black',
+    fillColor = ~pal4(gen1),
+    stroke = TRUE,
+    weight = 1.0,
+    opacity = 1,
+    fillOpacity = 0.8,
+    label = paste0(
+        mar_genero_canton$canton,
+        ", ",
+        mar_genero_canton$gen1
+      ),
+            popup = paste0(
+        "<div style=text-align:center><h3> Proyectos con GEN1 </div>",
+        "<strong>Cantón: </strong>",
+        mar_genero_canton$canton,
+        "<br>",
+        "<strong>N° proyectos Gen 1 : </strong>",
+        mar_genero_canton$gen1
+      )
+    ) %>%
+   addLegend(
+    pal = pal4,
+    values = mar_genero_canton$gen1,
+    opacity = 1,
+    title = "N° proyectos Gen 1",
+    position = "bottomright",
+    group = "Marcador GEN1:Cantones"
+  )%>%
+  
+  addPolygons (
+    data = mar_genero_canton,
+    group = "Marcador GEN2:Cantones",
+    color = 'black',
+    fillColor = ~pal5(gen2),
+    stroke = TRUE,
+    weight = 1.0,
+    opacity = 1,
+    fillOpacity = 0.8,
+    label = paste0(
+        mar_genero_canton$canton,
+        ", ",
+        mar_genero_canton$gen2
+      ),
+            popup = paste0(
+        "<div style=text-align:center><h3> Proyectos con GEN2 </div>",
+        "<strong>Cantón: </strong>",
+        mar_genero_canton$canton,
+        "<br>",
+        "<strong>N° proyectos Gen 2 : </strong>",
+        mar_genero_canton$gen2
+      )
+    ) %>%
+   addLegend(
+    pal = pal5,
+    values = mar_genero_canton$gen2,
+    opacity = 1,
+    title = "N° proyectos Gen 2",
+    position = "bottomright",
+    group = "Marcador GEN2:Cantones"
+  )%>%
+  
+  addPolygons (
+    data = mar_genero_canton,
+    group = "Marcador GEN3:Cantones",
+    color = 'black',
+    fillColor = ~pal6(gen3),
+    stroke = TRUE,
+    weight = 1.0,
+    opacity = 1,
+    fillOpacity = 0.8,
+    label = paste0(
+        mar_genero_canton$canton,
+        ", ",
+        mar_genero_canton$gen3
+      ),
+            popup = paste0(
+        "<div style=text-align:center><h3> Proyectos con GEN3 </div>",
+        "<strong>Cantón: </strong>",
+        mar_genero_canton$canton,
+        "<br>",
+        "<strong>N° proyectos Gen 3 : </strong>",
+        mar_genero_canton$gen3
+      )
+    ) %>%
+   addLegend(
+    pal = pal6,
+    values = mar_genero_canton$gen3,
+    opacity = 1,
+    title = "N° proyectos Gen 3",
+    position = "bottomright",
+    group = "Marcador GEN3:Cantones"
+  )%>%
+  
+ addLayersControl(
+   baseGroups = c("OSM", "Esri World Imagery"), 
+   overlayGroups = c("Cantidad proyectos por AC", "Cantidad proyecto por Región MIDEPLAN", "Cantidad proyectos por cantón", "Marcador GEN0:Cantones","Marcador GEN1:Cantones","Marcador GEN2:Cantones","Marcador GEN3:Cantones"),
+   options = layersControlOptions(collapsed = TRUE,  autoZIndex = FALSE))%>% 
+
+ addScaleBar(position = "bottomleft",
+                options = scaleBarOptions(imperial = FALSE)) %>%
+    addMouseCoordinates() %>%
+    addSearchOSM() %>%
+    addResetMapButton()
+
+map %>% hideGroup ("Marcador GEN3:Cantones")%>%
+        hideGroup ("Marcador GEN2:Cantones")%>%
+        hideGroup ("Marcador GEN1:Cantones")%>%
+        hideGroup ("Marcador GEN0:Cantones")%>%
+        hideGroup ("Cantidad proyectos por cantón")%>%
+        hideGroup ("Cantidad proyecto por Región MIDEPLAN")
+
+
+```
+
+
+Indicadores ODS
+=======================================================================
+```{r visor-ods1}
+
+bins <- c(0,3,4,5,6)
+pal <- colorBin("Reds", domain = ods_unidos$num_ods1, bins = bins)
+
+bins2 <- c(12,13,14,16,17)
+pal2 <- colorBin("YlOrRd", domain = ods_unidos$num_ods5, bins = bins2)
+
+bins3 <- c(0,1,2)
+pal3 <- colorBin("Blues", domain = ods_unidos$num_proyec, bins = bins3)
+
+bins4 <- c(0,1,2)
+pal4 <- colorBin("YlOrBr", domain = ods_unidos$num_proyec, bins = bins4)
+
+bins5 <- c(1,2,3)
+pal5 <- colorBin("Reds", domain = ods_unidos$num_ods8, bins = bins5)
+
+bins6 <- c(1,2,3,4)
+pal6 <- colorBin("RdPu", domain = ods_unidos$num_ods10, bins = bins6)
+
+bins7 <- c(0,1,2,3)
+pal7 <- colorBin("Oranges", domain = ods_unidos$num_ods11, bins = bins7)
+
+bins8 <- c(4,5,6,7)
+pal8 <- colorBin("YlOrBr", domain = ods_unidos$num_ods12, bins = bins8)
+
+bins9 <- c(5,6,7,8)
+pal9 <- colorBin("Greens", domain = ods_unidos$num_ods13, bins = bins9)
+
+bins10 <- c(1,2,3,4)
+pal10<- colorBin("PuBu", domain = ods_unidos$num_ods14, bins = bins10)
+
+bins11 <- c(4,5,6,7)
+pal11 <- colorBin("YlGn", domain = ods_unidos$num_ods15, bins = bins11)
+
+bins12 <- c(2,3)
+pal12 <- colorBin("#1ec6ff", domain = ods_unidos$num_ods16, bins = bins12)
+
+bins13 <- c(0,5,6,7)
+pal13 <- colorBin("Blues", domain = ods_unidos$num_ods17, bins = bins13)
+
+bins14 <- c(0,1,2,3)
+pal14 <- colorBin("OrRd", domain = ods_unidos$num_ods9, bins = bins14)
+
+
+# Mapa leaflet  con capas de los Indicadores ODS
+
+map <- 
+
+    leaflet() %>%
+      setView(lng = -84.19452,
+                lat = 9.572735,
+                zoom = 7) %>%
+      addTiles(group = "OSM (default)") %>%
+      addProviderTiles(providers$CartoDB.Positron, group = "Carto BD")%>%
+      
+      addTiles() %>%
+    # Overlay groups
+      addPolygons (
+        data = ods_unidos,
+        group = "N° proyectos ODS 1 por cantón",
+        color = 'black',
+        fillColor = ~pal(num_ods1),
+        stroke = TRUE,
+        weight = 1.0,
+        opacity = 1,
+        fillOpacity = 0.8,
+        label = paste0(
+            ods_unidos$canton,
+            ", ",
+            ods_unidos$num_ods1
+          ),
+                popup = paste0(
+            "<div style=text-align:center><h3> ODS 1 </div>",  
+            "<strong> Cantón : </strong>",
+           ods_unidos$canton,
+            "<br>",
+            "<strong>N° proyectos: </strong>",
+           ods_unidos$num_ods1
+          )
+      ) %>%
+      addLegend(
+        pal = pal,
+        values = ods_unidos$num_ods1,
+        opacity = 1,
+        title = "N° proyectos ODS 1",
+        position = "bottomright",
+        group = "N° proyectos ODS 1 por cantón"
+      )%>%
+      addPolygons (
+        data = ods_unidos,
+        group = "N° proyectos ODS 5 por cantón",
+        color = 'black',
+        fillColor = ~pal2(num_ods5),
+        stroke = TRUE,
+        weight = 1.0,
+        opacity = 1,
+        fillOpacity = 0.8,
+        label = paste0(
+           ods_unidos$canton,
+            ", ",
+            ods_unidos$num_ods5
+          ),
+                popup = paste0(
+            "<div style=text-align:center><h3> ODS 5 </div>",
+            "<strong> Cantón: </strong>",
+           ods_unidos$canton,
+            "<br>",
+            "<strong>N°proyectos: </strong>",
+           ods_unidos$num_ods5
+          )
+        ) %>%
+      addLegend(
+        pal = pal2,
+        values = ods_unidos$num_ods5,
+        opacity = 1,
+        title = "N° proyectos ODS 5",
+        position = "bottomright",
+        group = "N° proyectos ODS 5 por cantón"
+      )%>%
+  
+      addPolygons (
+        data = ods_unidos,
+        group = "N° proyectos ODS 6 por cantón",
+        color = 'black',
+        fillColor = ~pal3(num_ods6),
+        stroke = TRUE,
+        weight = 1.0,
+        opacity = 1,
+        fillOpacity = 0.8,
+        label = paste0(
+            ods_unidos$canton,
+            ", ",
+            ods_unidos$num_ods6
+          ),
+                popup = paste0(
+            "<div style=text-align:center><h3> ODS 6 </div>",
+            "<strong> Cantón: </strong>",
+           ods_unidos$canton,
+            "<br>",
+            "<strong>N°proyectos: </strong>",
+          ods_unidos$num_ods6
+          )
+        ) %>%
+   addLegend(
+        pal = pal6,
+        values = ods_unidos$num_ods6,
+        opacity = 3,
+        title = "N° proyectos ODS 6",
+        position = "bottomright",
+        group = "N° proyectos ODS 6 por cantón"
+      )%>%
+    
+      addPolygons (
+        data = ods_unidos,
+        group = "N° proyectos ODS 7 por cantón",
+        color = 'black',
+        fillColor = ~pal4(num_ods7),
+        stroke = TRUE,
+        weight = 1.0,
+        opacity = 1,
+        fillOpacity = 0.8,
+        label = paste0(
+            ods_unidos$canton,
+            ", ",
+            ods_unidos$num_ods7
+          ),
+                popup = paste0(
+            "<div style=text-align:center><h3> ODS 7 </div>",
+            "<strong>Cantón: </strong>",
+           ods_unidos$canton,
+            "<br>",
+            "<strong>N°proyectos: </strong>",
+           ods_unidos$num_ods7
+          )
+        ) %>%
+       addLegend(
+        pal = pal3,
+        values = ods_unidos$num_ods7,
+        opacity = 1,
+        title = "N° proyectos ODS 7",
+        position = "bottomright",
+        group = "N° proyectos ODS 7 por cantón"
+      )%>%
+      addPolygons (
+        data = ods_unidos,
+        group = "N° proyectos ODS 8 por cantón",
+        color = 'black',
+        fillColor = ~pal5(num_ods8),
+        stroke = TRUE,
+        weight = 1.0,
+        opacity = 1,
+        fillOpacity = 0.8,
+        label = paste0(
+            ods_unidos$canton,
+            ", ",
+            ods_unidos$num_ods8
+          ),
+                popup = paste0(
+            "<div style=text-align:center><h3> ODS 8 </div>",
+            "<strong>Cantón: </strong>",
+           ods_unidos$canton,
+            "<br>",
+            "<strong>N°proyectos: </strong>",
+           ods_unidos$num_ods8
+          )
+        ) %>%
+      addLegend(
+        pal = pal5,
+        values = ods_unidos$num_ods8,
+        opacity = 1,
+        title = "N° proyectos ODS 8",
+        position = "bottomleft",
+        group = "N° proyectos ODS 8 por cantón"
+      )%>%
+      
+      addPolygons (
+        data = ods_unidos,
+        group = "N° proyectos ODS 9 por cantón",
+        color = 'black',
+        fillColor = ~pal14(num_ods9),
+        stroke = TRUE,
+        weight = 1.0,
+        opacity = 1,
+        fillOpacity = 0.8,
+        label = paste0(
+            ods_unidos$canton,
+            ", ",
+            ods_unidos$num_ods9
+          ),
+                popup = paste0(
+            "<div style=text-align:center><h3> ODS 9 </div>",
+            "<strong>Cantón: </strong>",
+           ods_unidos$canton,
+            "<br>",
+            "<strong>N°proyectos: </strong>",
+           ods_unidos$num_ods9
+          )
+        ) %>%
+       addLegend(
+        pal = pal14,
+        values = ods_unidos$num_ods9,
+        opacity = 1,
+        title = "N° proyectos ODS 9",
+        position = "bottomleft",
+        group = "N° proyectos ODS 9 por cantón"
+      )%>%
+      addPolygons (
+        data = ods_unidos,
+        group = "N° proyectos ODS 10 por cantón",
+        color = 'black',
+        fillColor = ~pal6(num_ods10),
+        stroke = TRUE,
+        weight = 1.0,
+        opacity = 1,
+        fillOpacity = 0.8,
+        label = paste0(
+            ods_unidos$canton,
+            ", ",
+            ods_unidos$num_ods10
+          ),
+                popup = paste0(
+            "<div style=text-align:center><h3> ODS 10 </div>",
+            "<strong>Cantón: </strong>",
+           ods_unidos$canton,
+            "<br>",
+            "<strong>N°proyectos: </strong>",
+           ods_unidos$num_ods10
+          )
+        ) %>%
+       addLegend(
+        pal = pal6,
+        values = ods_unidos$num_ods10,
+        opacity = 1,
+        title = "N° proyectos ODS 10",
+        position = "bottomleft",
+        group = "N° proyectos ODS 10 por cantón"
+      )%>%
+      
+      addPolygons (
+        data = ods_unidos,
+        group = "N° proyectos ODS 11 por cantón",
+        color = 'black',
+        fillColor = ~pal7(num_ods11),
+        stroke = TRUE,
+        weight = 1.0,
+        opacity = 1,
+        fillOpacity = 0.8,
+        label = paste0(
+            ods_unidos$canton,
+            ", ",
+            ods_unidos$num_ods11
+          ),
+                popup = paste0(
+            "<div style=text-align:center><h3> ODS 11 </div>",
+            "<strong>Cantón: </strong>",
+           ods_unidos$canton,
+            "<br>",
+            "<strong>N°proyectos: </strong>",
+           ods_unidos$num_ods11
+          )
+        ) %>%
+      addLegend(
+            pal = pal7,
+            values = ods_unidos$num_ods11,
+            opacity = 1,
+            title = "N° proyectos ODS 11",
+            position = "bottomleft",
+            group = "N° proyectos ODS 11 por cantón"
+          )%>%
+      
+      addPolygons (
+        data = ods_unidos,
+        group = "N° proyectos ODS 12 por cantón",
+        color = 'black',
+        fillColor = ~pal8(num_ods12),
+        stroke = TRUE,
+        weight = 1.0,
+        opacity = 1,
+        fillOpacity = 0.8,
+        label = paste0(
+            ods_unidos$canton,
+            ", ",
+            ods_unidos$num_ods12
+          ),
+                popup = paste0(
+            "<div style=text-align:center><h3> ODS 12 </div>",
+            "<strong>Cantón: </strong>",
+           ods_unidos$canton,
+            "<br>",
+            "<strong>N°proyectos: </strong>",
+           ods_unidos$num_ods12
+          )
+        ) %>%
+      addLegend(
+            pal = pal8,
+            values = ods_unidos$num_ods12,
+            opacity = 1,
+            title = "N° proyectos ODS 12",
+            position = "bottomleft",
+            group = "N° proyectos ODS 12 por cantón"
+          )%>%
+      
+      addPolygons (
+        data = ods_unidos,
+        group = "N° proyectos ODS 13 por cantón",
+        color = 'black',
+        fillColor = ~pal9(num_ods13),
+        stroke = TRUE,
+        weight = 1.0,
+        opacity = 1,
+        fillOpacity = 0.8,
+        label = paste0(
+            ods_unidos$canton,
+            ", ",
+            ods_unidos$num_ods13
+          ),
+                popup = paste0(
+            "<div style=text-align:center><h3> ODS 13 </div>",
+            "<strong>Cantón: </strong>",
+           ods_unidos$canton,
+            "<br>",
+            "<strong>N°proyectos: </strong>",
+           ods_unidos$num_ods13
+          )
+        ) %>%
+      addLegend(
+            pal = pal9,
+            values = ods_unidos$num_ods13,
+            opacity = 1,
+            title = "N° proyectos ODS 13",
+            position = "bottomleft",
+            group = "N° proyectos ODS 13 por cantón"
+          )%>%
+      
+      addPolygons (
+        data = ods_unidos,
+        group = "N° proyectos ODS 14 por cantón",
+        color = 'black',
+        fillColor = ~pal10(num_ods14),
+        stroke = TRUE,
+        weight = 1.0,
+        opacity = 1,
+        fillOpacity = 0.8,
+        label = paste0(
+            ods_unidos$canton,
+            ", ",
+            ods_unidos$num_ods14
+          ),
+                popup = paste0(
+            "<div style=text-align:center><h3> ODS 14 </div>",
+            "<strong>Cantón: </strong>",
+           ods_unidos$canton,
+            "<br>",
+            "<strong>N°proyectos: </strong>",
+           ods_unidos$num_ods14
+          )
+        ) %>%
+      addLegend(
+            pal = pal10,
+            values = ods_unidos$num_ods14,
+            opacity = 1,
+            title = "N° proyectos ODS 14",
+            position = "bottomleft",
+            group = "N° proyectos ODS 14 por cantón"
+          )%>%
+      
+      addPolygons (
+        data = ods_unidos,
+        group = "N° proyectos ODS 15 por cantón",
+        color = 'black',
+        fillColor = ~pal11(num_ods15),
+        stroke = TRUE,
+        weight = 1.0,
+        opacity = 1,
+        fillOpacity = 0.8,
+        label = paste0(
+            ods_unidos$canton,
+            ", ",
+            ods_unidos$num_ods15
+          ),
+                popup = paste0(
+            "<div style=text-align:center><h3> ODS 15 </div>",
+            "<strong>Cantón: </strong>",
+           ods_unidos$canton,
+            "<br>",
+            "<strong>N°proyectos: </strong>",
+           ods_unidos$num_ods15
+          )
+        ) %>%
+      addLegend(
+            pal = pal11,
+            values = ods_unidos$num_ods15,
+            opacity = 1,
+            title = "N° proyectos ODS 15",
+            position = "bottomleft",
+            group = "N° proyectos ODS 15 por cantón"
+          )%>%
+      
+       addPolygons (
+        data = ods_unidos,
+        group = "N° proyectos ODS 16 por cantón",
+        color = 'black',
+        fillColor = ~pal12(num_ods16),
+        stroke = TRUE,
+        weight = 1.0,
+        opacity = 1,
+        fillOpacity = 0.8,
+        label = paste0(
+            ods_unidos$canton,
+            ", ",
+            ods_unidos$num_ods16
+          ),
+                popup = paste0(
+            "<div style=text-align:center><h3> ODS 16 </div>",
+            "<strong>Cantón: </strong>",
+           ods_unidos$canton,
+            "<br>",
+            "<strong>N°proyectos: </strong>",
+           ods_unidos$num_ods16
+            
+          )
+        ) %>%
+      addLegend(
+            pal = pal12,
+            values = ods_unidos$num_ods16,
+            opacity = 1,
+            title = "N° proyectos ODS 16",
+            position = "bottomleft",
+            group = "N° proyectos ODS 16 por cantón"
+          )%>%
+      
+      addPolygons (
+        data = ods_unidos,
+        group = "N° proyectos ODS 17 por cantón",
+        color = 'black',
+        fillColor = ~pal13(num_ods17),
+        stroke = TRUE,
+        weight = 1.0,
+        opacity = 1,
+        fillOpacity = 0.8,
+        label = paste0(
+            ods_unidos$canton,
+            ", ",
+            ods_unidos$num_ods17
+          ),
+                popup = paste0(
+            "<div style=text-align:center><h3> ODS 17 </div>",
+            "<strong>Cantón: </strong>",
+           ods_unidos$canton,
+            "<br>",
+            "<strong>N°proyectos: </strong>",
+           ods_unidos$num_ods17
+          )
+        ) %>%
+  addLegend(
+            pal = pal13,
+            values = ods_unidos$num_ods17,
+            opacity = 1,
+            title = "N° proyectos ODS 17",
+            position = "bottomleft",
+            group = "N° proyectos ODS 17 por cantón"
+          )%>%
+    addLayersControl(
+       baseGroups = c("OSM", "Esri World Imagery"), 
+       overlayGroups = c("N° proyectos ODS 1 por cantón","N° proyectos ODS 5 por cantón","N° proyectos ODS 6 por cantón","N° proyectos ODS 7 por cantón","N° proyectos ODS 8 por cantón","N° proyectos ODS 9 por cantón", "N° proyectos ODS 10 por cantón","N° proyectos ODS 11 por cantón","N° proyectos ODS 12 por cantón","N° proyectos ODS 13 por cantón","N° proyectos ODS 14 por cantón","N° proyectos ODS 15 por cantón","N° proyectos ODS 16 por cantón","N° proyectos ODS 17 por cantón" ),
+       options = layersControlOptions(collapsed = TRUE,  autoZIndex = TRUE))%>% 
+   addScaleBar(position = "bottomleft",
+                options = scaleBarOptions(imperial = FALSE)) %>%
+    addMouseCoordinates() %>%
+    addSearchOSM() %>%
+    addResetMapButton()
+
+map %>% hideGroup ("N° proyectos ODS 17 por cantón")%>% 
+        hideGroup ("N° proyectos ODS 16 por cantón")%>% 
+        hideGroup ("N° proyectos ODS 15 por cantón")%>% 
+        hideGroup ("N° proyectos ODS 14 por cantón")%>% 
+        hideGroup ("N° proyectos ODS 13 por cantón")%>% 
+        hideGroup ("N° proyectos ODS 12 por cantón")%>% 
+        hideGroup ("N° proyectos ODS 11 por cantón")%>% 
+        hideGroup ("N° proyectos ODS 10 por cantón")%>% 
+        hideGroup ("N° proyectos ODS 9 por cantón")%>% 
+        hideGroup ("N° proyectos ODS 8 por cantón")%>% 
+        hideGroup ("N° proyectos ODS 7 por cantón")%>% 
+        hideGroup ("N° proyectos ODS 6 por cantón")%>% 
+        hideGroup ("N° proyectos ODS 5 por cantón") 
+  
+  
+
+```
+
+
+Guía del usuario (a)
+=======================================================================
+
+Column {data-width=100}
+-----------------------------------------------------------------------
+### Guía del usuario(a) 
+<div>
+<p style = 'text-align:center;'>
+</p>
+</p>
+<img src="https://francini-ap.github.io/logos_ods/geovisor.JPG" alt="JuveYell" width="200px">
+</p>
+</div>
+
+
+Column {data-width=400}
+-----------------------------------------------------------------------
+### Información de la plataforma 
+
+<h1>Contenidos de la plataforma del Geovisor PNUD </h1>
+<center>
+<div>
+<p style = 'text-align:center;'>
+</p>
+</p>
+<img src="https://francini-ap.github.io/capas_visor_tfg_2022/GeoVisorPNUD(4).png" alt="JuveYell" width="800px" height="400px">
+</p>
+</div>
+</center>
+
+<h1>Consulta a la guía del usuario(a) de la plataforma:Geovisor PNUD </h1>
+
+<style>
+.btb{background-color:white;color:black;width:300px;}
+</style>
+
+<br>
+<button class="bt2"><a href='https://francini-ap.github.io/capas_visor_tfg_2022/GeoVisorPNUD(1).png'>Guía de uso sobre la información del área geográfica de los proyectos </a></button>
+
+<style>
+.btb{background-color:white;color:black;width:250px;}
+</style>
+
+<button class="bt2"><a href='https://francini-ap.github.io/capas_visor_tfg_2022/GeoVisorPNUD(2).png'>Guía de uso de los Geovisores y sus herramientas disponibles </a></button>
+
+
+
