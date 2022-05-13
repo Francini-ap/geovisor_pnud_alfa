@@ -162,6 +162,15 @@ filtrarRegistros <- reactive({
 
 ```
 
+<div>
+<p style = 'text-align:center;'>
+</p>
+</p>
+<img src="https://francini-ap.github.io/logos_ods/Logo%20PNUD-Color.png" alt="JuveYell" width="100px">
+</p>
+</div>
+
+
 Colum {data-height=1000}
 -----------------------------------------------------------------------
 
@@ -170,35 +179,29 @@ Colum {data-height=1000}
 ```{r area-geografica}
 
 #Paletas de colores 
-bins <- c(12, 13,14,15,16)
-pal <- colorBin(  "Greens", domain = proyectos_x_ac$num_proyec, bins = bins)
+
+bins1 <- c(12, 13,14,15,16)
+pal1 <-colorBin("Greens", domain = proyectos_x_ac$num_proyec, bins = bins1)
 
 bins2 <- c(13, 14,15,16)
 pal2 <-colorBin("YlOrBr", domain = proyectos_x_mideplan$num_pro_m, bins = bins2)
 
-bins3 <- c(12,13,14,15,16)
-pal3 <- colorBin("Purples", domain = proyectos_x_ac$num_proyec, bins = bins3)
+bins20 <- c(12,13, 14,15,16)
+pal20 <-colorBin("Purples", domain = proyectos_x_canton$num_pro_m, bins = bins20)
 
-bins4 <- c(4,5,6,7)
-pal4 <- colorBin("PuBu", domain = proyectos_x_ac$num_proyec, bins = bins4)
+bins21 <- c(0,1,2)
+pal21 <- colorBin("YlGn", domain = mar_genero_canton$gen0, bins = bins21)
 
-bins5 <- c(7,8,9,10,11)
-pal5 <- colorBin("PuRd", domain = proyectos_x_ac$num_proyec, bins = bins5)
+bins22 <- c(0,5)
+pal22 <- colorBin("Blues", domain = mar_genero_canton$gen1, bins = bins22)
 
-bins6 <- c(0,1,2,3)
-pal6 <- colorBin("Reds", domain = proyectos_x_ac$num_proyec, bins = bins6)
+bins23 <- c(7,8,9)
+pal23 <- colorBin("RdPu", domain =  mar_genero_canton$gen2, bins = bins23)
 
-bins7 <- c(1,6,7,8,10,11,20,21)
-pal7 <- colorBin("Greys", domain = proyectos_x_ac$num_proyec, bins = bins7)
+bins24 <- c(0,1,2)
+pal24 <- colorBin("YlOrBr", domain = mar_genero_canton$gen3, bins = bins24)
 
-bins8 <- c(616186,619381,620686,721813,861561,861564)
-pal8 <- colorBin("Reds", domain = proyectos_x_ac$num_proyec, bins = bins8)
 
-bins9 <- c(747693,1171799,1595906,2020012,2444119,2868225,2868227)
-pal9 <- colorBin("Blues", domain = proyectos_x_ac$num_proyec, bins = bins9)
-
-bins10 <- c(0,1,2)
-pal10 <- colorBin("YlGn", domain = proyectos_x_ac$num_proyec, bins = bins10)
 
 renderLeaflet({
   registros <-
@@ -260,7 +263,7 @@ map <-
     data = proyectos_x_ac,
     group = "Cantidad proyectos por AC",
     color = 'black',
-    fillColor = ~pal(num_proyec),
+    fillColor = ~pal1(num_proyec),
     stroke = TRUE,
     weight = 1.0,
     opacity = 1,
@@ -289,7 +292,7 @@ map <-
         proyectos_x_ac$p_nacional)
     ) %>%
   addLegend(
-    pal = pal,
+    pal = pal1,
     values = proyectos_x_ac$num_proyec,
     opacity = 1,
     title = "N° proyectos por AC",
@@ -337,7 +340,7 @@ addPolygons (
     data = proyectos_x_canton,
     group = "Cantidad proyectos por cantón",
     color = 'black',
-    fillColor = ~pal3(num_proyec),
+    fillColor = ~pal20(num_proyec),
     stroke = TRUE,
     weight = 1.0,
     opacity = 1,
@@ -362,7 +365,7 @@ addPolygons (
       )
     ) %>%
   addLegend(
-    pal = pal3,
+    pal = pal20,
     values = proyectos_x_canton$num_proyec,
     opacity = 1,
     title = "N° proyectos por cantón",
@@ -374,7 +377,7 @@ addPolygons (
     data = mar_genero_canton,
     group = "Marcador GEN0:Cantones",
     color = 'black',
-    fillColor = ~pal10(gen0),
+    fillColor = ~pal21(gen0),
     stroke = TRUE,
     weight = 1.0,
     opacity = 1,
@@ -394,7 +397,7 @@ addPolygons (
       )
     ) %>%
   addLegend(
-    pal = pal10,
+    pal = pal21,
     values = mar_genero_canton$gen0,
     opacity = 1,
     title = "N° proyectos Gen 0",
@@ -405,7 +408,7 @@ addPolygons (
     data = mar_genero_canton,
     group = "Marcador GEN1:Cantones",
     color = 'black',
-    fillColor = ~pal4(gen1),
+    fillColor = ~pal22(gen1),
     stroke = TRUE,
     weight = 1.0,
     opacity = 1,
@@ -425,7 +428,7 @@ addPolygons (
       )
     ) %>%
    addLegend(
-    pal = pal4,
+    pal = pal22,
     values = mar_genero_canton$gen1,
     opacity = 1,
     title = "N° proyectos Gen 1",
@@ -437,7 +440,7 @@ addPolygons (
     data = mar_genero_canton,
     group = "Marcador GEN2:Cantones",
     color = 'black',
-    fillColor = ~pal5(gen2),
+    fillColor = ~pal23(gen2),
     stroke = TRUE,
     weight = 1.0,
     opacity = 1,
@@ -457,7 +460,7 @@ addPolygons (
       )
     ) %>%
    addLegend(
-    pal = pal5,
+    pal = pal23,
     values = mar_genero_canton$gen2,
     opacity = 1,
     title = "N° proyectos Gen 2",
@@ -469,7 +472,7 @@ addPolygons (
     data = mar_genero_canton,
     group = "Marcador GEN3:Cantones",
     color = 'black',
-    fillColor = ~pal6(gen3),
+    fillColor = ~pal24(gen3),
     stroke = TRUE,
     weight = 1.0,
     opacity = 1,
@@ -489,7 +492,7 @@ addPolygons (
       )
     ) %>%
    addLegend(
-    pal = pal6,
+    pal = pal24,
     values = mar_genero_canton$gen3,
     opacity = 1,
     title = "N° proyectos Gen 3",
@@ -578,7 +581,7 @@ bins2 <- c(12,13,14,16,17)
 pal2 <- colorBin("YlOrRd", domain = ods_unidos$num_ods5, bins = bins2)
 
 bins3 <- c(0,1,2)
-pal3 <- colorBin("Blues", domain = ods_unidos$num_proyec, bins = bins3)
+pal3 <- colorBin("Blues", domain = ods_unidos$num_ods6, bins = bins3)
 
 bins4 <- c(0,1,2)
 pal4 <- colorBin("YlOrBr", domain = ods_unidos$num_proyec, bins = bins4)
@@ -610,7 +613,7 @@ pal12 <- colorBin("#1ec6ff", domain = ods_unidos$num_ods16, bins = bins12)
 bins13 <- c(0,5,6,7)
 pal13 <- colorBin("Blues", domain = ods_unidos$num_ods17, bins = bins13)
 
-bins14 <- c(0,1,2,3)
+bins14 <- c(1,2,3)
 pal14 <- colorBin("OrRd", domain = ods_unidos$num_ods9, bins = bins14)
 
 
@@ -647,7 +650,9 @@ map <-
            ods_unidos$canton,
             "<br>",
             "<strong>N° proyectos: </strong>",
-           ods_unidos$num_ods1
+           ods_unidos$num_ods1,
+           "<br>",
+           "<img src = https://francini-ap.github.io/logos_ods/ods1.JPG ",  " width = 80>"
           )
       ) %>%
       addLegend(
@@ -678,7 +683,9 @@ map <-
            ods_unidos$canton,
             "<br>",
             "<strong>N°proyectos: </strong>",
-           ods_unidos$num_ods5
+           ods_unidos$num_ods5,
+           "<br>",
+           "<img src = https://francini-ap.github.io/logos_ods/ods5.JPG ",  " width = 80>"
           )
         ) %>%
       addLegend(
@@ -710,11 +717,13 @@ map <-
            ods_unidos$canton,
             "<br>",
             "<strong>N°proyectos: </strong>",
-          ods_unidos$num_ods6
+          ods_unidos$num_ods6,
+          "<br>",
+          "<img src = https://francini-ap.github.io/logos_ods/ods6.JPG ",  " width = 80>"
           )
         ) %>%
    addLegend(
-        pal = pal6,
+        pal = pal3,
         values = ods_unidos$num_ods6,
         opacity = 3,
         title = "N° proyectos ODS 6",
@@ -742,11 +751,13 @@ map <-
            ods_unidos$canton,
             "<br>",
             "<strong>N°proyectos: </strong>",
-           ods_unidos$num_ods7
+           ods_unidos$num_ods7,
+           "<br>",
+           "<img src = https://francini-ap.github.io/logos_ods/ods7.JPG ",  " width = 80>"
           )
         ) %>%
        addLegend(
-        pal = pal3,
+        pal = pal4,
         values = ods_unidos$num_ods7,
         opacity = 1,
         title = "N° proyectos ODS 7",
@@ -773,7 +784,9 @@ map <-
            ods_unidos$canton,
             "<br>",
             "<strong>N°proyectos: </strong>",
-           ods_unidos$num_ods8
+           ods_unidos$num_ods8,
+           "<br>",
+           "<img src = https://francini-ap.github.io/logos_ods/ods8.JPG ",  " width = 80>"
           )
         ) %>%
       addLegend(
@@ -805,7 +818,9 @@ map <-
            ods_unidos$canton,
             "<br>",
             "<strong>N°proyectos: </strong>",
-           ods_unidos$num_ods9
+           ods_unidos$num_ods9,
+           "<br>",
+           "<img src = https://francini-ap.github.io/logos_ods/ods9.JPG ",  " width = 80>"
           )
         ) %>%
        addLegend(
@@ -836,7 +851,9 @@ map <-
            ods_unidos$canton,
             "<br>",
             "<strong>N°proyectos: </strong>",
-           ods_unidos$num_ods10
+           ods_unidos$num_ods10,
+           "<br>",
+           "<img src = https://francini-ap.github.io/logos_ods/ods10.JPG ",  " width = 80>"
           )
         ) %>%
        addLegend(
@@ -868,7 +885,9 @@ map <-
            ods_unidos$canton,
             "<br>",
             "<strong>N°proyectos: </strong>",
-           ods_unidos$num_ods11
+           ods_unidos$num_ods11,
+           "<br>",
+           "<img src = https://francini-ap.github.io/logos_ods/ods11.JPG ",  " width = 80>"
           )
         ) %>%
       addLegend(
@@ -900,7 +919,9 @@ map <-
            ods_unidos$canton,
             "<br>",
             "<strong>N°proyectos: </strong>",
-           ods_unidos$num_ods12
+           ods_unidos$num_ods12,
+           "<br>",
+           "<img src = https://francini-ap.github.io/logos_ods/ods12.JPG ",  " width = 80>"
           )
         ) %>%
       addLegend(
@@ -932,7 +953,9 @@ map <-
            ods_unidos$canton,
             "<br>",
             "<strong>N°proyectos: </strong>",
-           ods_unidos$num_ods13
+           ods_unidos$num_ods13,
+           "<br>",
+           "<img src = https://francini-ap.github.io/logos_ods/ods13.JPG ",  " width = 80>"
           )
         ) %>%
       addLegend(
@@ -964,7 +987,9 @@ map <-
            ods_unidos$canton,
             "<br>",
             "<strong>N°proyectos: </strong>",
-           ods_unidos$num_ods14
+           ods_unidos$num_ods14,
+           "<br>",
+           "<img src = https://francini-ap.github.io/logos_ods/ods14.JPG ",  " width = 80>"
           )
         ) %>%
       addLegend(
@@ -996,7 +1021,9 @@ map <-
            ods_unidos$canton,
             "<br>",
             "<strong>N°proyectos: </strong>",
-           ods_unidos$num_ods15
+           ods_unidos$num_ods15,
+           "<br>",
+           "<img src = https://francini-ap.github.io/logos_ods/ods15.JPG ",  " width = 80>"
           )
         ) %>%
       addLegend(
@@ -1028,7 +1055,9 @@ map <-
            ods_unidos$canton,
             "<br>",
             "<strong>N°proyectos: </strong>",
-           ods_unidos$num_ods16
+           ods_unidos$num_ods16,
+           "<br>",
+           "<img src = https://francini-ap.github.io/logos_ods/ods16.JPG ",  " width = 80>"
             
           )
         ) %>%
@@ -1061,7 +1090,9 @@ map <-
            ods_unidos$canton,
             "<br>",
             "<strong>N°proyectos: </strong>",
-           ods_unidos$num_ods17
+           ods_unidos$num_ods17,
+           "<br>",
+           "<img src = https://francini-ap.github.io/logos_ods/ods17.JPG ",  " width = 80>"
           )
         ) %>%
   addLegend(
@@ -1126,24 +1157,31 @@ Column {data-width=400}
 <p style = 'text-align:center;'>
 </p>
 </p>
-<img src="https://francini-ap.github.io/capas_visor_tfg_2022/GeoVisorPNUD(4).png" alt="JuveYell" width="800px" height="400px">
+<img src="https://francini-ap.github.io/capas_visor_tfg_2022/GeoVisorPNUD.png" alt="JuveYell" width="800px" height="400px">
 </p>
 </div>
 </center>
 
 <h1>Consulta a la guía del usuario(a) de la plataforma:Geovisor PNUD </h1>
+<div>
+<p style = 'text-align:left;'>
+</p>
+</p>
+<img src="https://francini-ap.github.io/capas_visor_tfg_2022/des2.png" alt="JuveYell" width="50px">
+</p>
+</div>
 
 <style>
 .btb{background-color:white;color:black;width:300px;}
 </style>
 
 <br>
-<button class="bt2"><a href='https://francini-ap.github.io/capas_visor_tfg_2022/GeoVisorPNUD(1).png'>Guía de uso sobre la información del área geográfica de los proyectos </a></button>
+<button class="bt2"><a href='https://francini-ap.github.io/capas_visor_tfg_2022/alcances_geo.jpg'>Guía de uso sobre la información del área geográfica de los proyectos </a></button>
 
 <style>
 .btb{background-color:white;color:black;width:250px;}
 </style>
 
-<button class="bt2"><a href='https://francini-ap.github.io/capas_visor_tfg_2022/GeoVisorPNUD(2).png'>Guía de uso de los Geovisores y sus herramientas disponibles </a></button>
+<button class="bt2"><a href='https://francini-ap.github.io/capas_visor_tfg_2022/indica_geo.jpg'>Guía de uso de los Geovisores y sus herramientas disponibles </a></button>
 
 
