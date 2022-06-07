@@ -180,13 +180,13 @@ Colum {data-height=1000}
 
 #Paletas de colores 
 
-bins1 <- c(12, 13,14,15,16)
+bins1 <- c(12, 13, 15,16,17)
 pal1 <-colorBin("Greens", domain = proyectos_x_ac$num_proyec, bins = bins1)
 
-bins2 <- c(13, 14,15,16)
+bins2 <- c(13,15,16)
 pal2 <-colorBin("YlOrBr", domain = proyectos_x_mideplan$num_pro_m, bins = bins2)
 
-bins20 <- c(12,13, 14,15,16)
+bins20 <- c(12,13, 14,16)
 pal20 <-colorBin("Purples", domain = proyectos_x_canton$num_pro_m, bins = bins20)
 
 bins21 <- c(0,1,2)
@@ -1157,31 +1157,100 @@ Column {data-width=400}
 <p style = 'text-align:center;'>
 </p>
 </p>
-<img src="https://francini-ap.github.io/capas_visor_tfg_2022/GeoVisorPNUD.png" alt="JuveYell" width="800px" height="400px">
+<img src="https://francini-ap.github.io/logos_ods/geovisor_diseno.jpg" alt="JuveYell" width="800px" height="400px">
 </p>
 </div>
 </center>
 
 <h1>Consulta a la guía del usuario(a) de la plataforma:Geovisor PNUD </h1>
-<div>
-<p style = 'text-align:left;'>
-</p>
-</p>
-<img src="https://francini-ap.github.io/capas_visor_tfg_2022/des2.png" alt="JuveYell" width="50px">
-</p>
-</div>
 
-<style>
-.btb{background-color:white;color:black;width:300px;}
-</style>
 
 <br>
-<button class="bt2"><a href='https://francini-ap.github.io/capas_visor_tfg_2022/alcances_geo.jpg'>Guía de uso sobre la información del área geográfica de los proyectos </a></button>
 
-<style>
-.btb{background-color:white;color:black;width:250px;}
+<style type="text/css">
+  .boton1{
+    text-decoration: black;
+    padding: 10px;
+    font-weight: 300;
+    font-size: 18px;
+    color: white;
+    background-color: #1883ba;
+    border-radius: 4px;
+    border: 2px solid #0016b0;
+    display: flex;
+    justify-content: center;
+  }
 </style>
 
-<button class="bt2"><a href='https://francini-ap.github.io/capas_visor_tfg_2022/indica_geo.jpg'>Guía de uso de los Geovisores y sus herramientas disponibles </a></button>
 
+
+<div class="trans"> 
+
+  <a class="boton1" href="https://francini-ap.github.io/capas_visor_tfg_2022/alcances_geo.jpg">Guía de uso sobre la información del área geográfica de los proyectos </a>
+  
+  <br>
+  
+  
+  <a class="boton1" href='https://francini-ap.github.io/capas_visor_tfg_2022/indica_geo.jpg'>Guía de uso de los Geovisores y sus herramientas disponibles </a>
+
+
+</div> 
+
+
+
+
+
+Descarga de mapas
+=======================================================================
+
+
+
+
+Column {data-width=400}
+-----------------------------------------------------------------------
+### 
+
+<center>
+<div>
+<p style = 'text-align:center;'>
+</p>
+</p>
+<img src="https://francini-ap.github.io/logos_ods/descarrga-mapas.jpg" alt="JuveYell" width="500px" height="150px">
+</p>
+</div>
+</center>
+
+<h1>Seleccione para la descarga </h1>
+
+
+<br>
+
+<style type="text/css">
+  .boton1{
+    text-decoration: black;
+    padding: 10px;
+    font-weight: 300;
+    font-size: 18px;
+    color: white;
+    background-color: #1883ba;
+    border-radius: 4px;
+    border: 2px solid #0016b0;
+    display: flex;
+    justify-content: center;
+  }
+</style>
+
+
+
+<div class="trans"> 
+
+  <a class="boton1" href="https://francini-ap.github.io/mapas_indicadores_geograficos_visorpnud/mapas_alcances_geograficos.zip">Mapas de los Alcances geográficos</a>
+  
+  <br>
+  
+  
+  <a class="boton1" href="https://francini-ap.github.io/mapas_ods/mapas_indicadores_ods.zip">Mapas de los Indicadores ODS</a>
+
+
+</div> 
 
