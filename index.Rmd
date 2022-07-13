@@ -44,13 +44,14 @@ library(RColorBrewer)
 
 library(shiny)
 library(sp)
-library(leaflet)
-library(leaflet.extras2)
+
+
 library(htmlwidgets)
 library( mapview )
-library(webshot)
-library(htmltools)
-library(htmlwidgets)
+
+
+
+
 
 # Make some noisily increasing data
 set.seed(955)
@@ -101,7 +102,7 @@ mar_genero_canton<-
 
 ods_unidos<-
   st_read(
-    "https://francini-ap.github.io/capas_visor_tfg_2022/ods_unidos_2.geojson",
+    "https://francini-ap.github.io/capas_visor_tfg_2022/ods_unidos_3.geojson",
     quiet = TRUE
   )
 
@@ -186,19 +187,19 @@ pal1 <-colorBin("Greens", domain = proyectos_x_ac$num_proyec, bins = bins1)
 bins2 <- c(13,15,16)
 pal2 <-colorBin("YlOrBr", domain = proyectos_x_mideplan$num_pro_m, bins = bins2)
 
-bins20 <- c(12,13, 14,16)
+bins20 <- c(12,14,15, 16,17)
 pal20 <-colorBin("Purples", domain = proyectos_x_canton$num_pro_m, bins = bins20)
 
 bins21 <- c(0,1,2)
 pal21 <- colorBin("YlGn", domain = mar_genero_canton$gen0, bins = bins21)
 
-bins22 <- c(0,5)
+bins22 <- c(5)
 pal22 <- colorBin("Blues", domain = mar_genero_canton$gen1, bins = bins22)
 
-bins23 <- c(7,8,9)
+bins23 <- c(7,8,9,10)
 pal23 <- colorBin("RdPu", domain =  mar_genero_canton$gen2, bins = bins23)
 
-bins24 <- c(0,1,2)
+bins24 <- c(0,1,2,3)
 pal24 <- colorBin("YlOrBr", domain = mar_genero_canton$gen3, bins = bins24)
 
 
@@ -580,7 +581,7 @@ pal <- colorBin("Reds", domain = ods_unidos$num_ods1, bins = bins)
 bins2 <- c(12,13,14,16,17)
 pal2 <- colorBin("YlOrRd", domain = ods_unidos$num_ods5, bins = bins2)
 
-bins3 <- c(0,1,2)
+bins3 <- c(0,1,2,3)
 pal3 <- colorBin("Blues", domain = ods_unidos$num_ods6, bins = bins3)
 
 bins4 <- c(0,1,2)
@@ -610,10 +611,10 @@ pal11 <- colorBin("YlGn", domain = ods_unidos$num_ods15, bins = bins11)
 bins12 <- c(2,3)
 pal12 <- colorBin("#1ec6ff", domain = ods_unidos$num_ods16, bins = bins12)
 
-bins13 <- c(0,5,6,7)
+bins13 <- c(5,6,7)
 pal13 <- colorBin("Blues", domain = ods_unidos$num_ods17, bins = bins13)
 
-bins14 <- c(1,2,3)
+bins14 <- c(0,1,2)
 pal14 <- colorBin("OrRd", domain = ods_unidos$num_ods9, bins = bins14)
 
 
@@ -1249,7 +1250,7 @@ Column {data-width=400}
   <br>
   
   
-  <a class="boton1" href="https://francini-ap.github.io/mapas_ods/mapas_indicadores_ods.zip">Mapas de los Indicadores ODS</a>
+  <a class="boton1" href="https://francini-ap.github.io/mapas_indicadores_ods/mapas_indicadores_ods.zip">Mapas de los Indicadores ODS</a>
 
 
 </div> 
