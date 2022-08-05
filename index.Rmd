@@ -73,28 +73,28 @@ dat <- data.frame(cond = rep(c("A", "B"), each=10),
 # Lectura de una capa vectorial (GeoJSON) Proyectos por AC
 proyectos_x_ac<-
   st_read(
-    "https://francini-ap.github.io/capas_visor_tfg_2022/ac_proyectos.geojson",
+    "https://francini-ap.github.io/capas_visor_tfg_2022/ac_proyectos2.geojson",
     quiet = TRUE
   )
 
 # Lectura de una capa vectorial (GeoJSON) Proyectos por Regiones MIDEPLAN
 proyectos_x_mideplan<-
   st_read(
-    "https://francini-ap.github.io/capas_visor_tfg_2022/mideplan_proyectos.geojson",
+    "https://francini-ap.github.io/capas_visor_tfg_2022/mideplan_proyectos2.geojson",
     quiet = TRUE
   )
 
 # Lectura de una capa vectorial (GeoJSON) Proyectos por canton
 proyectos_x_canton<-
   st_read(
-    "https://francini-ap.github.io/capas_visor_tfg_2022/cantones_proyectos.geojson",
+    "https://francini-ap.github.io/capas_visor_tfg_2022/cantones_proyectos2.geojson",
     quiet = TRUE
   )
 
 # Lectura de una capa vectorial (GeoJSON) 	Marcador de género, por proyecto y cantón 
 mar_genero_canton<-
   st_read(
-    "https://francini-ap.github.io/capas_visor_tfg_2022/margenero_canton.geojson",
+    "https://francini-ap.github.io/capas_visor_tfg_2022/margenero_canton2.geojson",
     quiet = TRUE
   )
 
@@ -102,7 +102,7 @@ mar_genero_canton<-
 
 ods_unidos<-
   st_read(
-    "https://francini-ap.github.io/capas_visor_tfg_2022/ods_unidos_3.geojson",
+    "https://francini-ap.github.io/capas_visor_tfg_2022/ods_unidos_4.geojson",
     quiet = TRUE
   )
 
@@ -312,9 +312,9 @@ addPolygons (
     label = paste0(
         proyectos_x_mideplan$region,
         ", ",
-         proyectos_x_mideplan$p_locales,
+         proyectos_x_mideplan$p_local,
         ", ",
-        proyectos_x_mideplan$p_naciones
+        proyectos_x_mideplan$p_nacional
       ),
             popup = paste0(
         "<div style=text-align:center><h3> Proyectos por Región MIDEPLAN </div>", 
@@ -322,10 +322,10 @@ addPolygons (
         proyectos_x_mideplan$region,
         "<br>",
         "<strong>N°proyectos locales: </strong>",
-        proyectos_x_mideplan$p_locales,
+        proyectos_x_mideplan$p_local,
        "<br>",
         "<strong>N°proyectos nacionales: </strong>",
-        proyectos_x_mideplan$p_naciones
+        proyectos_x_mideplan$p_nacional
       )
     ) %>%
   addLegend(
@@ -617,6 +617,8 @@ pal13 <- colorBin("Blues", domain = ods_unidos$num_ods17, bins = bins13)
 bins14 <- c(0,1,2)
 pal14 <- colorBin("OrRd", domain = ods_unidos$num_ods9, bins = bins14)
 
+bins15 <- c(0,1,2)
+pal15 <- colorBin("YlOrBr", domain = ods_unidos$num_ods2, bins = bins15)
 
 # Mapa leaflet  con capas de los Indicadores ODS
 
@@ -664,6 +666,41 @@ map <-
         position = "bottomright",
         group = "N° proyectos ODS 1 por cantón"
       )%>%
+  
+    addPolygons (
+        data = ods_unidos,
+        group = "N° proyectos ODS 2 por cantón",
+        color = 'black',
+        fillColor = ~pal15(num_ods2),
+        stroke = TRUE,
+        weight = 1.0,
+        opacity = 1,
+        fillOpacity = 0.8,
+        label = paste0(
+            ods_unidos$canton,
+            ", ",
+            ods_unidos$num_ods2
+          ),
+                popup = paste0(
+            "<div style=text-align:center><h3> ODS 2 </div>",  
+            "<strong> Cantón : </strong>",
+           ods_unidos$canton,
+            "<br>",
+            "<strong>N° proyectos: </strong>",
+           ods_unidos$num_ods2,
+           "<br>",
+           "<img src = https://francini-ap.github.io/logos_ods/ods2.JPG ",  " width = 80>"
+          )
+      ) %>%
+      addLegend(
+        pal = pal15,
+        values = ods_unidos$num_ods2,
+        opacity = 1,
+        title = "N° proyectos ODS 2",
+        position = "bottomright",
+        group = "N° proyectos ODS 2 por cantón"
+      )%>%
+  
       addPolygons (
         data = ods_unidos,
         group = "N° proyectos ODS 5 por cantón",
@@ -1106,7 +1143,7 @@ map <-
           )%>%
     addLayersControl(
        baseGroups = c("OSM", "Esri World Imagery"), 
-       overlayGroups = c("N° proyectos ODS 1 por cantón","N° proyectos ODS 5 por cantón","N° proyectos ODS 6 por cantón","N° proyectos ODS 7 por cantón","N° proyectos ODS 8 por cantón","N° proyectos ODS 9 por cantón", "N° proyectos ODS 10 por cantón","N° proyectos ODS 11 por cantón","N° proyectos ODS 12 por cantón","N° proyectos ODS 13 por cantón","N° proyectos ODS 14 por cantón","N° proyectos ODS 15 por cantón","N° proyectos ODS 16 por cantón","N° proyectos ODS 17 por cantón" ),
+       overlayGroups = c("N° proyectos ODS 1 por cantón","N° proyectos ODS 2 por cantón","N° proyectos ODS 5 por cantón","N° proyectos ODS 6 por cantón","N° proyectos ODS 7 por cantón","N° proyectos ODS 8 por cantón","N° proyectos ODS 9 por cantón", "N° proyectos ODS 10 por cantón","N° proyectos ODS 11 por cantón","N° proyectos ODS 12 por cantón","N° proyectos ODS 13 por cantón","N° proyectos ODS 14 por cantón","N° proyectos ODS 15 por cantón","N° proyectos ODS 16 por cantón","N° proyectos ODS 17 por cantón" ),
        options = layersControlOptions(collapsed = TRUE,  autoZIndex = TRUE))%>% 
    addScaleBar(position = "bottomleft",
                 options = scaleBarOptions(imperial = FALSE)) %>%
@@ -1126,7 +1163,8 @@ map %>% hideGroup ("N° proyectos ODS 17 por cantón")%>%
         hideGroup ("N° proyectos ODS 8 por cantón")%>% 
         hideGroup ("N° proyectos ODS 7 por cantón")%>% 
         hideGroup ("N° proyectos ODS 6 por cantón")%>% 
-        hideGroup ("N° proyectos ODS 5 por cantón") 
+        hideGroup ("N° proyectos ODS 5 por cantón")%>% 
+        hideGroup ("N° proyectos ODS 2 por cantón")
   
   
 
