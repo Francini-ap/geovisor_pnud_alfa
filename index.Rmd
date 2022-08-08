@@ -66,7 +66,7 @@ dat <- data.frame(cond = rep(c("A", "B"), each=10),
 # Lectura de una capa vectorial (GeoJSON) Proyecto locales Unidos
  proyectos_unidos_v2 <-
   st_read(
-    "https://francini-ap.github.io/capas_visor_tfg_2022/proyectos_pnud6.geojson",
+    "https://francini-ap.github.io/capas_visor_tfg_2022/proyectos_pnud7.geojson",
     quiet = TRUE
   )
 
@@ -108,7 +108,7 @@ ods_unidos<-
 
 
 #Lista ordenada de proyectos + "Todas"
-lista_proyectos_pnud <- unique(proyectos_unidos_v2$nom_abrev)
+lista_proyectos_pnud <- unique(proyectos_unidos_v2$nom_proyec)
 lista_proyectos_pnud <- sort(lista_proyectos_pnud)
 lista_proyectos_pnud <- c("Todos", lista_proyectos_pnud)
 
@@ -144,14 +144,14 @@ filtrarRegistros <- reactive({
   # Remoción de geometrías y selección de columnas
   proyectos_unidos_filtrado <-
     proyectos_unidos_v2  %>%
-    dplyr::select(nom_abrev, mar_genero, nom_donant,presupu_2, ods)
+    dplyr::select(nom_proyec, mar_genero, nom_donant,presupu_2, ods)
           
   
   # Filtrado de los proyectos PNUD 
   if (input$proyectos != "Todos") {
     proyectos_unidos_filtrado <-
       proyectos_unidos_filtrado %>%
-      filter(nom_abrev == input$proyectos)
+      filter(nom_proyec == input$proyectos)
     
   }
  
@@ -537,7 +537,7 @@ renderDT({
   
   registros %>%
     st_drop_geometry() %>%
-    select(nom_abrev, mar_genero, nom_donant,presupu_2, ods) %>%
+    select(nom_proyec, mar_genero, nom_donant,presupu_2, ods) %>%
     datatable(
       rownames = FALSE,
       colnames = c(
