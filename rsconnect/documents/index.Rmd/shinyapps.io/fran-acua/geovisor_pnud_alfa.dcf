@@ -5,9 +5,9 @@ account: fran-acua
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 6284522
-bundleId: 6125163
+bundleId: 6181463
 url: https://fran-acua.shinyapps.io/geovisor_pnud_alfa/
-when: 1658538921.77653
-lastSyncTime: 1658538921.77653
+when: 1660001956.61681
+lastSyncTime: 1660001956.61681
 asMultiple: FALSE
 asStatic: FALSE
